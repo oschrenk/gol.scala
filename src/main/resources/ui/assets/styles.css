@@ -15,6 +15,29 @@
   min-height: 100vh;
 }
 
+button {
+  background-color: transparent;
+  background-image: url(chevron.svg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  color: transparent;
+  border: none;
+  height: 50px;
+  outline: none;
+}
+
+button:hover {
+  transform: scale(1.2);
+}
+
+#back {
+  transform: rotate(180deg);
+}
+#back:hover{
+  transform: rotate(180deg) scale(1.2);
+}
+
 .grid {
   border: 1px solid #ccc;
   border-width: 1px 0 0 1px;
