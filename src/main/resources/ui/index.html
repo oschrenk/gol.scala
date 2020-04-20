@@ -3,15 +3,31 @@
   <meta charset="utf-8">
   <title>Game of Life</title>
   <link rel="stylesheet" href="assets/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <div id="rows">
-    <div><button id="back">Back</button></div>
-    <div id=wrapper>
-      <div id="world" class="grid"></div>
+  <div class="wrapper">
+    <div class="row" style=""> </div>
+    <div class="row" style="flex: 0 1 auto">
+      <div class="column" style="justify-content: space-between">
+        <div style="flex: 1;"></div>
+        <div style="flex: 1; display:flex; align-items: center; justify-content: flex-end"><button id="back">Back</button></div>
+        <div style="flex: 1; "></div>
+      </div>
+      <div class=matrix>
+        <div style="flex-basis: auto;"></div>
+        <div id="world" class="grid"></div>
+        <div style="flex-basis: auto;"></div>
+      </div>
+      <div class="column">
+        <div style="flex: 1; vertical-align: top;"><h1>Game<br>of<br>Life</h1></div>
+
+        <div style="flex: 1; display:flex; align-items: center;"><button id="forward">Forward</button></div>
+        <div style="flex: 1; "></div>
+      </div>
     </div>
-    <div><button id="forward">Forward</button></div>
+    <div class="row"> </div>
   </div>
   <script src="assets/scripts.js"></script>
 </body>

@@ -1,18 +1,43 @@
-#rows {
-  display: flex;
-  flex-direction: rows;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Abel&display=swap');
+
+.wrapper, html, body {
+    height: 100%;
+    margin: 0;
+}
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-#wrapper {
+h1 {
+  font-family: 'Abel', sans-serif;
+  font-size: 48px;
+  line-height: 50px;
+  margin: 0;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.matrix {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  text-align: center;
-  min-height: 100vh;
+}
+
+#world {
+  flex: 1
 }
 
 button {
@@ -25,6 +50,7 @@ button {
   border: none;
   height: 50px;
   outline: none;
+  margin-right: 5px;
 }
 
 button:hover {
