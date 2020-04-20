@@ -23,10 +23,10 @@ object WebServer {
         getFromResource("ui/index.html")
       } ~ pathPrefix("assets") {
         getFromResourceDirectory("ui/assets")
-      } ~ path("seed" / LongNumber / IntNumber) { (seed, tick) =>
+      } ~ path("seed" / LongNumber / DoubleNumber / IntNumber/ IntNumber / IntNumber) { (seed, saturation, width, height, tick) =>
         get {
           complete(HttpEntity(ContentTypes.`application/json`,
-            World.tick(tick, World.random(10, 10, 0.5,new Random(seed))).asJson.spaces2
+            World.tick(tick, World.random(width, height, saturation, new Random(seed))).asJson.spaces2
           ))
         }
       }

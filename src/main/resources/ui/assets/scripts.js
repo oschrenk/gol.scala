@@ -1,7 +1,8 @@
 
-const WIDTH = 11
-const HEIGHT = 11
+const WIDTH = 22
+const HEIGHT = 22
 const SEED = 123456
+const SATURATION = 0.5
 
 var tick = 0
 
@@ -22,7 +23,7 @@ function createGrid(width, height, points) {
 }
 
 function populate(tick) {
-  fetch(`http://localhost:8080/seed/${SEED}/${tick}`).then(r => r.json())
+  fetch(`http://localhost:8080/seed/${SEED}/${SATURATION}/${WIDTH}/${HEIGHT}/${tick}`).then(r => r.json())
   .then(data => {
     createGrid(WIDTH, HEIGHT, data.cells);
   })
