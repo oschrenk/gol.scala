@@ -59,6 +59,15 @@ function pause() {
   }
 }
 
+function stop() {
+  if (playing) {
+    clearInterval(playing)
+  }
+  tick = 0;
+  updateTick(tick)
+  populate(tick);
+}
+
 createGrid(WIDTH, HEIGHT);
 populate(tick);
 
@@ -67,4 +76,5 @@ window.onload = function(){
   document.getElementById("back").onclick = back
   document.getElementById("pause").onclick = pause
   document.getElementById("play").onclick = play
+  document.getElementById("stop").onclick = stop
 }

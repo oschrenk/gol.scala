@@ -37,6 +37,7 @@ h2 {
 .column {
   display: flex;
   flex-direction: column;
+  min-width: 250px;
 }
 
 .matrix {
@@ -77,12 +78,16 @@ button:hover {
 
 #pause {
   background-image: url(pause.svg);
-  margin-right: 10px;
 }
 
 #play {
   margin-left: 10px;
   background-image: url(play.svg);
+}
+
+#stop {
+  margin-right: 10px;
+  background-image: url(stop.svg);
 }
 
 #forward {
