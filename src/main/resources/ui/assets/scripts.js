@@ -1,13 +1,11 @@
 
 const WIDTH = 22
 const HEIGHT = 22
-const SEED = 123456
 const SATURATION = 0.5
 
 var tick = 0
 
 function createGrid(width, height, points) {
-
     const parent = document.getElementById("world")
     parent.textContent = '';
 
@@ -22,22 +20,32 @@ function createGrid(width, height, points) {
     }
 }
 
+function getSeed() {
+  return document.getElementById("seed").textContent;
+}
+
 function populate(tick) {
-  fetch(`http://localhost:8080/seed/${SEED}/${SATURATION}/${WIDTH}/${HEIGHT}/${tick}`).then(r => r.json())
+  fetch(`http://localhost:8080/seed/${getSeed()}/${SATURATION}/${WIDTH}/${HEIGHT}/${tick}`).then(r => r.json())
   .then(data => {
     createGrid(WIDTH, HEIGHT, data.cells);
   })
   .catch(e => console.log(e))
 }
 
+function updateTick(tick) {
+  document.getElementById("tick").textContent = `${tick}`;
+}
+
 function back() {
   tick = Math.max(0, tick - 1)
   populate(tick)
+  updateTick(tick)
 }
 
 function forward() {
   tick = tick + 1
   populate(tick)
+  updateTick(tick)
 }
 
 createGrid(WIDTH, HEIGHT);
