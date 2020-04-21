@@ -9,7 +9,7 @@ case class World private(width: Int, height: Int, cells: Set[Point]) {
   private def neighbors(p: Point): Set[Point] = {
     (for {
       x <- Math.max(1, p.x - 1).to(Math.min(this.width, p.x + 1))
-      y <- Math.max(1, p.y - 1).to(Math.min(this.height,p.y + 1))
+      y <- Math.max(1, p.y - 1).to(Math.min(this.height, p.y + 1))
     } yield Point(x, y)).toSet - p
   }
 
@@ -40,7 +40,7 @@ object World {
   }
 
   def random(width: Int, height: Int, saturation: Double, rnd: Random = new Random()): World = {
-    assert(saturation >= 0 && saturation <=1)
+    assert(saturation >= 0 && saturation <= 1)
 
     @scala.annotation.tailrec
     def populate(count: Int, set: Set[Point]): Set[Point] = {
@@ -48,9 +48,10 @@ object World {
       else {
         val p = Point(rnd.nextInt(width) + 1, rnd.nextInt(height) + 1)
         if (set.contains(p)) populate(count, set)
-        else  populate(count - 1, set + p)
+        else populate(count - 1, set + p)
       }
     }
+
     World(width, height, populate((width * height * saturation).toInt, Set.empty))
   }
 
@@ -59,5 +60,5 @@ object World {
     World(w.width, w.height, survivors ++ born)
   }
 
-  def tick(n: Int, w: World): World = 1.to(n).foldLeft(w){case (acc, _) => tick(acc)}
+  def tick(n: Int, w: World): World = 1.to(n).foldLeft(w) { case (acc, _) => tick(acc) }
 }
