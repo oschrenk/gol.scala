@@ -4,6 +4,7 @@ const HEIGHT = 22
 const SATURATION = 0.5
 
 var tick = 0
+var playing = null
 
 function createGrid(width, height, points) {
     const parent = document.getElementById("world")
@@ -48,10 +49,22 @@ function forward() {
   updateTick(tick)
 }
 
+function play() {
+  playing = setInterval(forward, 500);
+}
+
+function pause() {
+  if (playing) {
+    clearInterval(playing)
+  }
+}
+
 createGrid(WIDTH, HEIGHT);
 populate(tick);
 
 window.onload = function(){
   document.getElementById("forward").onclick = forward
   document.getElementById("back").onclick = back
+  document.getElementById("pause").onclick = pause
+  document.getElementById("play").onclick = play
 }

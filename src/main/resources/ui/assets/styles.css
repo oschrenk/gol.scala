@@ -51,7 +51,6 @@ h2 {
 
 button {
   background-color: transparent;
-  background-image: url(chevron.svg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -59,18 +58,41 @@ button {
   border: none;
   height: 50px;
   outline: none;
-  margin-right: 5px;
+  margin: 0;
+  transform: scale(0.8);
 }
 
 button:hover {
   transform: scale(1.2);
 }
 
+
 #back {
-  transform: rotate(180deg);
+  background-image: url(left.svg);
+  transform: scale(0.7);
 }
-#back:hover{
-  transform: rotate(180deg) scale(1.2);
+#back:hover {
+  transform: scale(1.1);
+}
+
+#pause {
+  background-image: url(pause.svg);
+  margin-right: 10px;
+}
+
+#play {
+  margin-left: 10px;
+  background-image: url(play.svg);
+}
+
+#forward {
+  background-image: url(right.svg);
+  margin-left: -10px;
+  transform: scale(0.7);
+}
+
+#forward:hover {
+  transform: scale(1.1);
 }
 
 .grid {
