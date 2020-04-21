@@ -18,7 +18,8 @@ class GameSpec extends AnyFlatSpec with Matchers {
   }
 
   it should "stay loaf" in {
-    val loaf = Set(Point(3, 2), Point(4, 2), Point(2, 3), Point(5, 3), Point(3, 4), Point(5, 4), Point(4, 5))
+    val loaf =
+      Set(Point(3, 2), Point(4, 2), Point(2, 3), Point(5, 3), Point(3, 4), Point(5, 4), Point(4, 5))
     tick(seed(6, 6, loaf)).cells shouldBe loaf
   }
 
@@ -48,9 +49,9 @@ class GameSpec extends AnyFlatSpec with Matchers {
 
   it should "be Beacon" in {
     val beacon1 = Set(Point(2, 2), Point(2, 3), Point(3, 2), Point(5, 4), Point(4, 5), Point(5, 5))
-    val beacon2 = Set(Point(2, 2), Point(2, 3), Point(3, 2), Point(3, 3), Point(4, 4), Point(5, 4), Point(4, 5), Point(5, 5))
+    val beacon2 =
+      Set(Point(2, 2), Point(2, 3), Point(3, 2), Point(3, 3), Point(4, 4), Point(5, 4), Point(4, 5), Point(5, 5))
     tick(seed(6, 6, beacon1)).cells shouldBe beacon2
     tick(2, seed(6, 6, beacon1)).cells shouldBe beacon1
   }
-
 }

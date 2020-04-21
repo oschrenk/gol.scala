@@ -49,8 +49,8 @@ function forward() {
   updateTick(tick)
 }
 
-function play() {
-  playing = setInterval(forward, 500);
+function play(s) {
+  s.send('{"event": "play" }');
 }
 
 function pause() {
@@ -59,22 +59,27 @@ function pause() {
   }
 }
 
-function stop() {
-  if (playing) {
-    clearInterval(playing)
-  }
+function stop(s) {
   tick = 0;
   updateTick(tick)
   populate(tick);
+  s.send('{"event": "stop" }');
 }
 
-createGrid(WIDTH, HEIGHT);
-populate(tick);
 
 window.onload = function(){
+
+  createGrid(WIDTH, HEIGHT);
   document.getElementById("forward").onclick = forward
   document.getElementById("back").onclick = back
   document.getElementById("pause").onclick = pause
-  document.getElementById("play").onclick = play
-  document.getElementById("stop").onclick = stop
+  document.getElementById("play").onclick = () => play(s)
+  document.getElementById("stop").onclick = () => stop(s)
+
+  var s = new WebSocket("ws://localhost:8080/socket");
+  s.onmessage = function (event) {
+    console.log(event.data);
+  }
+
+  populate(tick);
 }
