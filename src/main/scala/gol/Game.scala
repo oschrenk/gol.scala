@@ -4,7 +4,7 @@ import scala.util.Random
 
 case class Point(x: Int, y: Int)
 
-case class World private(width: Int, height: Int, cells: Set[Point]) {
+case class World private(width: Int, height: Int, cells: Set[Point], tick: Int) {
 
   private def neighbors(p: Point): Set[Point] = {
     (for {
@@ -36,7 +36,7 @@ case class World private(width: Int, height: Int, cells: Set[Point]) {
 object World {
 
   def seed(width: Int, height: Int, points: Set[Point]): World = {
-    World(width, height, points)
+    World(width, height, points, 0)
   }
 
   def random(width: Int, height: Int, saturation: Double, rnd: Random = new Random()): World = {
@@ -52,12 +52,12 @@ object World {
       }
     }
 
-    World(width, height, populate((width * height * saturation).toInt, Set.empty))
+    World(width, height, populate((width * height * saturation).toInt, Set.empty), 0)
   }
 
   def tick(w: World): World = {
     val (survivors, _, born) = w.changeSet
-    World(w.width, w.height, survivors ++ born)
+    World(w.width, w.height, survivors ++ born, w.tick + 1)
   }
 
   def tick(n: Int, w: World): World = 1.to(n).foldLeft(w) { case (acc, _) => tick(acc) }
