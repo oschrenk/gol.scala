@@ -3,8 +3,6 @@ package gol
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
 import gol.Protocol._
 import gol.UserActor._
-import io.circe.generic.auto._
-import io.circe.syntax._
 
 import scala.util.Random
 
@@ -13,8 +11,6 @@ object UserActor {
 
   case class Connected(outActor: ActorRef)
   case object Disconnected
-  case class OutgoingMessage(text: String)
-  case class IncomingMessage(text: String)
   case object Tick
 }
 
@@ -38,48 +34,40 @@ class UserActor extends Actor with Stoppable {
   }
 
   def connected(user: ActorRef): Receive = {
-    case IncomingMessage(text: String) =>
-      Protocol.parse(text) match {
-        case Right(Control(width, height, seed, saturation, speed)) =>
-          val world = World.random(width, height, saturation, new Random(seed))
-          val tickDuration = (1000 / speed).milliseconds
-          user ! OutgoingMessage(world.asJson.noSpaces)
-          context.become(paused(user, world, world, tickDuration).orElse(disconnect))
-        case f => println(f)
-      }
+    case Control(width, height, seed, saturation, speed, tick) =>
+      val originalWorld = World.random(width, height, saturation, new Random(seed))
+      val currentWorld = World.tick(tick, originalWorld)
+      val tickDuration = (1000 / speed).milliseconds
+      user ! currentWorld
+      context.become(paused(user, currentWorld, originalWorld, tickDuration).orElse(disconnect))
   }
 
   def paused(user: ActorRef, currentWorld: World, originalWorld: World, tickDuration: FiniteDuration): Receive = {
-    case IncomingMessage(text: String) =>
-      Protocol.parse(text) match {
-        case Left(t) =>
-          println(t.getMessage)
-        case Right(protocol) =>
-          protocol match {
-            case Play =>
-              val cancellable = context.system.scheduler.scheduleWithFixedDelay(
-                Duration.Zero,
-                tickDuration,
-                self,
-                Tick
-              )
-              context.become(playing(user, cancellable, currentWorld, originalWorld, tickDuration).orElse(disconnect))
-            case Forward =>
-              val newWorld = World.tick(currentWorld)
-              user ! OutgoingMessage(newWorld.asJson.noSpaces)
-              context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
-            case Back =>
-              if (currentWorld.tick > 0) {
-                val newWorld = World.tick(currentWorld.tick - 1, originalWorld)
-                user ! OutgoingMessage(newWorld.asJson.noSpaces)
-                context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
-              }
-            case Stop =>
-              user ! OutgoingMessage(originalWorld.asJson.noSpaces)
-              context.become(paused(user, originalWorld, originalWorld, tickDuration).orElse(disconnect))
-            case _ => // Pause, Stop do nothing
-          }
+    case Play =>
+      val cancellable = context.system.scheduler.scheduleWithFixedDelay(
+        Duration.Zero,
+        tickDuration,
+        self,
+        Tick
+      )
+      context.become(playing(user, cancellable, currentWorld, originalWorld, tickDuration).orElse(disconnect))
+    case Forward =>
+      val newWorld = World.tick(currentWorld)
+      user ! newWorld
+      context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
+    case Back =>
+      if (currentWorld.tick > 0) {
+        val newWorld = World.tick(currentWorld.tick - 1, originalWorld)
+        user ! newWorld
+        context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
       }
+    case Stop =>
+      user ! originalWorld
+      context.become(paused(user, originalWorld, originalWorld, tickDuration).orElse(disconnect))
+    case c: Control =>
+      self ! c
+      context.become(connected(user).orElse(disconnect))
+    case _ => // Pause, Stop do nothing
   }
 
   def playing(
@@ -89,37 +77,33 @@ class UserActor extends Actor with Stoppable {
       originalWorld: World,
       tickDuration: FiniteDuration
   ): Receive = {
-    case IncomingMessage(text: String) =>
-      Protocol.parse(text) match {
-        case Left(t) => println(t.getMessage)
-        case Right(protocol) =>
-          protocol match {
-            case Stop =>
-              cancellable.cancel()
-              user ! OutgoingMessage(originalWorld.asJson.noSpaces)
-              context.become(paused(user, originalWorld, originalWorld, tickDuration).orElse(disconnect))
-            case Pause =>
-              cancellable.cancel()
-              context.become(paused(user, currentWorld, originalWorld, tickDuration).orElse(disconnect))
-            case Back =>
-              cancellable.cancel()
-              if (currentWorld.tick > 0) {
-                val newWorld = World.tick(currentWorld.tick - 1, originalWorld)
-                user ! OutgoingMessage(newWorld.asJson.noSpaces)
-                context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
-              }
-            case Forward =>
-              cancellable.cancel()
-              val newWorld = World.tick(currentWorld)
-              user ! OutgoingMessage(newWorld.asJson.noSpaces)
-              context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
-            case _ => // Play does nothing
-          }
+    case Stop =>
+      cancellable.cancel()
+      user ! originalWorld
+      context.become(paused(user, originalWorld, originalWorld, tickDuration).orElse(disconnect))
+    case Pause =>
+      cancellable.cancel()
+      context.become(paused(user, currentWorld, originalWorld, tickDuration).orElse(disconnect))
+    case Back =>
+      cancellable.cancel()
+      if (currentWorld.tick > 0) {
+        val newWorld = World.tick(currentWorld.tick - 1, originalWorld)
+        user ! newWorld
+        context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
       }
+    case Forward =>
+      cancellable.cancel()
+      val newWorld = World.tick(currentWorld)
+      user ! newWorld
+      context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
     case Tick =>
       val newWorld = World.tick(currentWorld)
-      user ! OutgoingMessage(newWorld.asJson.noSpaces)
+      user ! newWorld
       context.become(playing(user, cancellable, newWorld, originalWorld, tickDuration).orElse(disconnect))
+    case c: Control =>
+      self ! c
+      context.become(connected(user).orElse(disconnect))
+    case _ => // Play does nothing
   }
 
 }

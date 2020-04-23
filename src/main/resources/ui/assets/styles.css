@@ -17,6 +17,7 @@ h1 {
   margin: 0;
   margin-right: 5px;
   margin-left: 10px;
+  outline: none;
 }
 
 h2 {
@@ -26,6 +27,7 @@ h2 {
   margin: 0;
   margin-right: 10px;
   margin-left: 10px;
+  outline: none;
 }
 
 .row {

@@ -17,6 +17,10 @@ function createGrid(width, height, points) {
   }
 }
 
+function populate(cells) {
+  createGrid(WIDTH, HEIGHT, cells);
+}
+
 function getSeed() {
   return parseInt(document.getElementById("seed").textContent);
 }
@@ -25,16 +29,59 @@ function getSpeed() {
   return parseInt(document.getElementById("speed").textContent);
 }
 
-function populate(cells) {
-  createGrid(WIDTH, HEIGHT, cells);
+function getTick() {
+  return parseInt(document.getElementById("tick").textContent);
 }
 
 function updateTick(tick) {
   document.getElementById("tick").textContent = `${tick}`;
 }
 
+function updateSeed(seed) {
+  document.getElementById("seed").textContent = `${seed}`;
+}
+
+function updateSpeed(speed) {
+  document.getElementById("speed").textContent = `${speed}`;
+}
+
 function send(s, event) {
   s.send(`{"event": "${event}"}`);
+}
+
+function registerEditable(socket, id, fetch, update) {
+  document.getElementById(id).addEventListener("focus", (e) => {
+    send(socket, "pause");
+    const oldValue = fetch()
+
+    document.getElementById(id).addEventListener("blur", (e) => {
+      const currentValue = fetch()
+      if (Number.isInteger(currentValue)) {
+        if (oldValue != currentValue) {
+          const payload = {
+            width: WIDTH,
+            height: HEIGHT,
+            seed: getSeed(),
+            speed: getSpeed(),
+            saturation: SATURATION,
+            tick: getTick()
+          }
+          const data = {
+            event: "control",
+            payload: payload
+          }
+          socket.send(JSON.stringify(data));
+        }
+      } else {
+        update(oldValue) // default to old value
+      }
+    }, { once: true })
+  })
+  document.getElementById(id).addEventListener('keypress', (e) => {
+    if (e.which === 13) {
+      e.preventDefault();
+    }
+  });
 }
 
 window.onload = function(){
@@ -53,7 +100,8 @@ window.onload = function(){
       height: HEIGHT,
       seed: getSeed(),
       speed: getSpeed(),
-      saturation: SATURATION
+      saturation: SATURATION,
+      tick: 0
     }
     const data = {
       event: "control",
@@ -68,5 +116,9 @@ window.onload = function(){
       populate(world.cells)
     }
   }
+
+  registerEditable(s, "tick", getTick, updateTick)
+  registerEditable(s, "seed", getSeed, updateSeed)
+  registerEditable(s, "speed", getSpeed, updateSpeed)
 
 }

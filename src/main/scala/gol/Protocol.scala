@@ -10,7 +10,7 @@ object Protocol {
   case object Forward extends Protocol
   case object Back extends Protocol
   case object Pause extends Protocol
-  case class Control(width: Int, height: Int, seed: Int, saturation: Double, speed: Int) extends Protocol
+  case class Control(width: Int, height: Int, seed: Int, saturation: Double, speed: Int, tick: Int) extends Protocol
 
   def parse(s: String): Either[Throwable, Protocol] = {
     io.circe.parser
