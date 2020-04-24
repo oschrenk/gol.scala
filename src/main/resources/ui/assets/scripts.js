@@ -93,7 +93,7 @@ window.onload = function(){
   document.getElementById("play").onclick = () => send(s, "play");
   document.getElementById("stop").onclick = () => send(s, "stop");
 
-  const s = new WebSocket("ws://localhost:8080/socket");
+  const s = new WebSocket(`ws://${location.hostname}${location.port ? ':'+location.port: ''}/socket`);
   s.onopen = function(event) {
     const payload = {
       width: WIDTH,

@@ -21,7 +21,7 @@ object WebServer {
         handleWebSocketMessages(UserFlow.newUserFlow(system.actorOf(UserActor.props())))
       }
 
-    val interface = "localhost"
+    val interface = "0.0.0.0"
     val port = 8080
     Http().bindAndHandle(route, interface, port)
     println(s"Server online at http://$interface:$port/")
