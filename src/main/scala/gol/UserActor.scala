@@ -4,8 +4,6 @@ import akka.actor.{Actor, ActorRef, Cancellable, Props}
 import gol.Protocol._
 import gol.UserActor._
 
-import scala.util.Random
-
 object UserActor {
   def props(): Props = Props(new UserActor())
 
@@ -33,39 +31,58 @@ class UserActor extends Actor with Stoppable {
       context.become(connected(user).orElse(disconnect))
   }
 
+  private def toDuration(speed: Int): FiniteDuration = (1000 / speed).milliseconds
+
   def connected(user: ActorRef): Receive = {
-    case Control(width, height, seed, saturation, speed, tick) =>
-      val originalWorld = World.random(width, height, saturation, new Random(seed))
-      val currentWorld = World.tick(tick, originalWorld)
-      val tickDuration = (1000 / speed).milliseconds
-      user ! currentWorld
-      context.become(paused(user, currentWorld, originalWorld, tickDuration).orElse(disconnect))
+    case c: Control =>
+      val rules = Rules(c.tick, c.speed, Seed.random(c.width, c.height, c.seed, c.saturation))
+
+      val originalWorld = World.from(rules.seed)
+      val currentWorld = World.tick(rules.tick, originalWorld)
+
+      val originalState = State(originalWorld, rules)
+      val currentState = State(currentWorld, rules)
+
+      user ! currentState
+      context.become(paused(user, currentState, originalState).orElse(disconnect))
+    case Painted(cells) =>
+      val rules = Rules(0, 2, Seed.custom(22, 22, cells))
+      val world =  World.from(rules.seed)
+      val newState = State(world, rules)
+
+      user ! newState
+      context.become(paused(user, newState, newState).orElse(disconnect))
   }
 
-  def paused(user: ActorRef, currentWorld: World, originalWorld: World, tickDuration: FiniteDuration): Receive = {
+  def paused(user: ActorRef, currentState: State, originalState: State): Receive = {
     case Play =>
       val cancellable = context.system.scheduler.scheduleWithFixedDelay(
         Duration.Zero,
-        tickDuration,
+        toDuration(originalState.rules.speed),
         self,
         Tick
       )
-      context.become(playing(user, cancellable, currentWorld, originalWorld, tickDuration).orElse(disconnect))
+      context.become(playing(user, cancellable, currentState, originalState).orElse(disconnect))
     case Forward =>
-      val newWorld = World.tick(currentWorld)
-      user ! newWorld
-      context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
+      val newState = currentState.tick()
+      user ! newState
+      context.become(paused(user, newState, originalState).orElse(disconnect))
     case Back =>
-      if (currentWorld.tick > 0) {
-        val newWorld = World.tick(currentWorld.tick - 1, originalWorld)
-        user ! newWorld
-        context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
+      if (currentState.world.tick > 0) {
+        val world = World.tick(currentState.world.tick - 1, originalState.world)
+        val newState = State(world, originalState.rules)
+
+        user ! newState
+        context.become(paused(user, newState, originalState).orElse(disconnect))
       }
     case Stop =>
-      user ! originalWorld
-      context.become(paused(user, originalWorld, originalWorld, tickDuration).orElse(disconnect))
+      user ! originalState
+      context.become(paused(user, originalState, originalState).orElse(disconnect))
     case c: Control =>
       self ! c
+      context.become(connected(user).orElse(disconnect))
+    case p: Painted =>
+      self ! p
       context.become(connected(user).orElse(disconnect))
     case _ => // Pause, Stop do nothing
   }
@@ -73,35 +90,39 @@ class UserActor extends Actor with Stoppable {
   def playing(
       user: ActorRef,
       cancellable: Cancellable,
-      currentWorld: World,
-      originalWorld: World,
-      tickDuration: FiniteDuration
+      currentState: State,
+      originalState: State
   ): Receive = {
     case Stop =>
       cancellable.cancel()
-      user ! originalWorld
-      context.become(paused(user, originalWorld, originalWorld, tickDuration).orElse(disconnect))
+      user ! originalState
+      context.become(paused(user, originalState, originalState).orElse(disconnect))
     case Pause =>
       cancellable.cancel()
-      context.become(paused(user, currentWorld, originalWorld, tickDuration).orElse(disconnect))
+      context.become(paused(user, currentState, originalState).orElse(disconnect))
     case Back =>
       cancellable.cancel()
-      if (currentWorld.tick > 0) {
-        val newWorld = World.tick(currentWorld.tick - 1, originalWorld)
-        user ! newWorld
-        context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
+      if (currentState.world.tick > 0) {
+        val world = World.tick(currentState.world.tick - 1, originalState.world)
+        val newState = State(world, originalState.rules)
+
+        user ! newState
+        context.become(paused(user, newState, originalState).orElse(disconnect))
       }
     case Forward =>
       cancellable.cancel()
-      val newWorld = World.tick(currentWorld)
-      user ! newWorld
-      context.become(paused(user, newWorld, originalWorld, tickDuration).orElse(disconnect))
+      val newState = currentState.tick()
+      user ! newState
+      context.become(paused(user, newState, originalState).orElse(disconnect))
     case Tick =>
-      val newWorld = World.tick(currentWorld)
-      user ! newWorld
-      context.become(playing(user, cancellable, newWorld, originalWorld, tickDuration).orElse(disconnect))
+      val newState = currentState.tick()
+      user ! newState
+      context.become(playing(user, cancellable, newState, originalState).orElse(disconnect))
     case c: Control =>
       self ! c
+      context.become(connected(user).orElse(disconnect))
+    case p: Painted =>
+      self ! p
       context.become(connected(user).orElse(disconnect))
     case _ => // Play does nothing
   }

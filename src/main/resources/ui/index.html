@@ -11,7 +11,7 @@
     <div class="row" style=""> </div>
     <div class="row" style="flex: 0 1 auto">
       <div class="column" style="justify-content: space-between">
-        <div style="flex: 1;vertical-align: top; align-items: right;">
+        <div style="flex: 1; vertical-align: top;">
           <div>
             <h1 id="tick" style="text-align: right" contenteditable="true">0</h1>
           </div>
@@ -26,11 +26,17 @@
           <h2 style="text-align: right; color: #777">t/sec</h2>
         </div>
         <div style="flex: 0 1 auto; display:flex; align-items: center; justify-content: flex-end">
-          <button id="back">Back</button>
-          <button id="pause">Pause</button>
-          <button id="stop">Stop</button>
+          <button title="Back" id="back">Back</button>
+          <button title="Pause" id="pause">Pause</button>
+          <button title="Stop" id="stop">Stop</button>
         </div>
-        <div style="flex: 1; "></div>
+        <div style="flex: 1; display:flex; flex-direction: column; justify-content: flex-end;">
+          <div style="display:flex; justify-content: flex-end;">
+            <button title="Paint dead cells" id="white">Dead</button>
+            <button title="Paint alive cells" id="black" class="selected">Alive</button>
+            <button title="Clear grid" id="clear">Clear</button>
+          </div>
+        </div>
       </div>
       <div class=matrix>
         <div style="flex-basis: auto;"></div>
@@ -41,8 +47,8 @@
         <div style="flex: 1; vertical-align: top;"><h1>Game<br>of<br>Life</h1></div>
 
         <div style="flex: 1; display:flex; align-items: center;">
-          <button id="play">Play</button>
-          <button id="forward">Forward</button>
+          <button title="Play" id="play">Play</button>
+          <button title="Forward" id="forward">Forward</button>
         </div>
         <div style="flex: 1; "></div>
       </div>

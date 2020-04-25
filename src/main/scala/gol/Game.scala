@@ -34,12 +34,11 @@ case class World private(width: Int, height: Int, cells: Set[Point], tick: Int) 
 }
 
 object World {
-
-  def seed(width: Int, height: Int, points: Set[Point]): World = {
+  private def seed(width: Int, height: Int, points: Set[Point]): World = {
     World(width, height, points, 0)
   }
 
-  def random(width: Int, height: Int, saturation: Double, rnd: Random = new Random()): World = {
+  private def random(width: Int, height: Int, saturation: Double, rnd: Random = new Random()): World = {
     assert(saturation >= 0 && saturation <= 1)
 
     @scala.annotation.tailrec
@@ -53,6 +52,14 @@ object World {
     }
 
     World(width, height, populate((width * height * saturation).toInt, Set.empty), 0)
+  }
+
+  def from(seed: Seed): World = {
+    seed match {
+      case Seed.random(width, height, seedValue, saturation) =>
+        random(width, height, saturation, new Random(seedValue))
+      case Seed.custom(width, height, cells) => this.seed(width, height, cells)
+    }
   }
 
   def tick(w: World): World = {

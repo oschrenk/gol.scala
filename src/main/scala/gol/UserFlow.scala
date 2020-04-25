@@ -43,7 +43,7 @@ object UserFlow {
         userActor ! UserActor.Connected(outActor)
         akka.NotUsed
       }
-      .map((world: World) => TextMessage(world.asJson.noSpaces))
+      .map((state: State) => TextMessage(state.asJson.noSpaces))
     Flow.fromSinkAndSourceCoupled(incomingMessages, outgoingMessages)
   }
 }

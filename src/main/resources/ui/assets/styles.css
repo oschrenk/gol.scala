@@ -69,6 +69,9 @@ button:hover {
   transform: scale(1.2);
 }
 
+.selected {
+  transform: scale(1.2);
+}
 
 #back {
   background-image: url(left.svg);
@@ -98,6 +101,25 @@ button:hover {
   transform: scale(0.7);
 }
 
+#white {
+  background-image: url(square-o.svg);
+  height: 24px;
+  width: 24px;
+}
+
+#black {
+  height: 24px;
+  width: 24px;
+  background-image: url(square.svg);
+}
+
+#clear {
+  height: 24px;
+  width: 24px;
+  background-image: url(square-times.svg);
+  margin-right: 10px;
+}
+
 #forward:hover {
   transform: scale(1.1);
 }
@@ -119,4 +141,8 @@ button:hover {
 
 .grid div.alive {
   background-color: #000;
+}
+
+.grid div.dead {
+  background-color: #fff;
 }
