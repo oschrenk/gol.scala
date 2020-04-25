@@ -11,7 +11,7 @@
     <div class="row" style=""> </div>
     <div class="row" style="flex: 0 1 auto">
       <div class="column" style="justify-content: space-between">
-        <div style="flex: 1;vertical-align: top; align-items: right;">
+        <div style="flex: 1; vertical-align: top;">
           <div>
             <h1 id="tick" style="text-align: right" contenteditable="true">0</h1>
           </div>
@@ -30,7 +30,13 @@
           <button id="pause">Pause</button>
           <button id="stop">Stop</button>
         </div>
-        <div style="flex: 1; "></div>
+        <div style="flex: 1; display:flex; flex-direction: column; justify-content: flex-end;">
+          <div style="display:flex; justify-content: flex-end;">
+            <button id="white">Alive</button>
+            <button id="black">Dead</button>
+            <button id="clear">Clear</button>
+          </div>
+        </div>
       </div>
       <div class=matrix>
         <div style="flex-basis: auto;"></div>
